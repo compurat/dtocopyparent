@@ -10,5 +10,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface CopyDto {
 
-    String copyTo() default "";
+    String copyFromPackage();
+    String copyToPackage();
 }
