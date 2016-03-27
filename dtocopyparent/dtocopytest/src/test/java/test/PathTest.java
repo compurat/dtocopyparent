@@ -7,9 +7,11 @@ import java.io.*;
 public class PathTest {
     private static final String FOLDER_SEPERATOR = "/";
     private static final String PACKAGE = "package ";
+    public static final String START = "{";
+    public static final String END = "}";
 
-    StringBuilder  stringBuilder = new StringBuilder();
-
+    private StringBuilder  stringBuilder = new StringBuilder();
+    int getterOrSetterContent = 0;
 
     @Test
     public void test() throws IOException {
@@ -46,8 +48,10 @@ public class PathTest {
 
         try {
             while( ( line = reader.readLine() ) != null) {
-                if(!(line.startsWith("@"))) {
+                if(!(line.startsWith("@") && !(line.contains(START)) || !(line.contains(END)))) {
                     addingLineToFileContent(newPackage, line);
+                } else if (line.contains(START) || line.contains(END)) {
+                    removeGetterAndSetters(line);
                 }
             }
             return stringBuilder.toString();
@@ -64,5 +68,20 @@ public class PathTest {
             stringBuilder.append(line);
             stringBuilder.append("\n");
         }
+    }
+
+    private boolean removeGetterAndSetters(String line) {
+        boolean setterGetterComplete = false;
+        if (line.contains(START)) {
+            getterOrSetterContent += 1;
+        } else if (line.contains(END)) {
+            getterOrSetterContent -= 1;
+        }
+
+        if (getterOrSetterContent == 0) {
+            setterGetterComplete = true;
+        }
+
+        return setterGetterComplete;
     }
 }
