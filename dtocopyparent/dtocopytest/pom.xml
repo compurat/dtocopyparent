@@ -16,13 +16,9 @@
         <groupId>com.purat</groupId>
         <version>1.0-SNAPSHOT</version>
     </dependency>
-    <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-    </dependency>
 </dependencies>
-    <build>
 <!--
+    <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -41,6 +37,6 @@
                 </configuration>
             </plugin>
         </plugins>
--->
     </build>
+-->
 </project>

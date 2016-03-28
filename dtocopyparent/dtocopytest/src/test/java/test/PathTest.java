@@ -47,11 +47,9 @@ public class PathTest {
             while( ( line = reader.readLine() ) != null ) {
                 if(line.startsWith(PACKAGE)) {
                     line = line.replace(line, PACKAGE + newPackage + ";");
-                    stringBuilder.append(line);
-                } else {
-                    stringBuilder.append(line);
-                    stringBuilder.append("\n");
                 }
+                stringBuilder.append(line);
+                stringBuilder.append("\n");
             }
             return stringBuilder.toString();
         } finally {
