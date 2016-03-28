@@ -22,9 +22,10 @@ public class PathTest {
         for (File toCopyFile : sourceFolder.listFiles()) {
             if (!(toCopyFile.isDirectory())) {
                 try {
-                    String newContent = changeJavaFile(toCopyFile,"com.purat.copied");
                     String[] splittedTargetName = toCopyFile.getCanonicalPath().split(FOLDER_SEPERATOR);
                     String fileName = splittedTargetName[splittedTargetName.length - 1];
+                    String[] shortName = fileName.split("\\.");
+                    String newContent = changeJavaFile(toCopyFile,"com.purat.copied", shortName[0]);
                     File destFile = new File(targetFolderName + fileName);
                     fileOutputStream = new FileOutputStream(destFile);
                     fileOutputStream.write(newContent.getBytes());
@@ -37,20 +38,30 @@ public class PathTest {
         }
 
     }
-    private String changeJavaFile(File file, String newPackage) throws IOException {
+    private String changeJavaFile(File file, String newPackage, String filename) throws IOException {
         BufferedReader reader = new BufferedReader( new FileReader(file));
-        String         line = null;
+        String line = null;
         StringBuilder  stringBuilder = new StringBuilder();
-        String         ls = System.getProperty("line.separator");
+        String ls = System.getProperty("line.separator");
+        boolean methodComplete = true;
 
         try {
             while( ( line = reader.readLine() ) != null ) {
                 if(line.startsWith(PACKAGE)) {
                     line = line.replace(line, PACKAGE + newPackage + ";");
                 }
-                stringBuilder.append(line);
-                stringBuilder.append("\n");
+                if  (line.endsWith("{") && !(line.contains(filename))) {
+                    methodComplete = false;
+                }
+                if (line.endsWith("}")) {
+                    methodComplete = true;
+                }
+                if (methodComplete && !(line.endsWith("}")) && !(line.startsWith("@"))) {
+                    stringBuilder.append(line);
+                    stringBuilder.append("\n");
+                }
             }
+            stringBuilder.append("}");
             return stringBuilder.toString();
         } finally {
             reader.close();

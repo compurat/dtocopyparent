@@ -11,6 +11,9 @@ public class TestBean {
     private int b;
     private Long c;
 
+    public TestBean() {
+
+    }
 
     public String getA() {
         return a;
