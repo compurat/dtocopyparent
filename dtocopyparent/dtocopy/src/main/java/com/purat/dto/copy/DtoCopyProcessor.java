@@ -38,10 +38,10 @@ public class DtoCopyProcessor extends AbstractProcessor {
     }
 
     private void copyDto(String copyFrom, String copyTo) {
-        String targetFolderName = SOURCE_FOLDER + copyTo.replaceAll("\\.", "/") + FOLDER_SEPERATOR ;
+        String targetFolderName = SOURCE_FOLDER + copyTo.replaceAll("\\.", FOLDER_SEPERATOR) + FOLDER_SEPERATOR ;
         File targetFolder = new File(targetFolderName);
         targetFolder.mkdirs();
-        String sourceFolderName = SOURCE_FOLDER + copyFrom.replaceAll("\\.", "/");
+        String sourceFolderName = SOURCE_FOLDER + copyFrom.replaceAll("\\.", FOLDER_SEPERATOR);
         File sourceFolder = new File(sourceFolderName);
         FileOutputStream fileOutputStream = null;
         for (File toCopyFile : sourceFolder.listFiles()) {
@@ -64,10 +64,10 @@ public class DtoCopyProcessor extends AbstractProcessor {
     }
 
     private String changeJavaFile(File file, String newPackage, String filename) throws IOException {
-        BufferedReader reader = new BufferedReader( new FileReader(file));
+        ;
         StringBuilder  stringBuilder = new StringBuilder();
         boolean methodComplete = true;
-        try {
+        try (BufferedReader reader = new BufferedReader( new FileReader(file))) {
             String line = null;
             while( ( line = reader.readLine() ) != null ) {
                 line = changePackage(newPackage, line);
@@ -88,8 +88,6 @@ public class DtoCopyProcessor extends AbstractProcessor {
             }
             stringBuilder.append("}");
             return stringBuilder.toString();
-        } finally {
-            reader.close();
         }
     }
 
