@@ -6,12 +6,8 @@ import java.io.*;
 
 public class PathTest {
     private static final String FOLDER_SEPERATOR = "/";
-    private static final String PACKAGE = "package ";
-    public static final String START = "{";
-    public static final String END = "}";
+    public static final String PACKAGE = "package ";
 
-    private StringBuilder  stringBuilder = new StringBuilder();
-    int getterOrSetterContent = 0;
 
     @Test
     public void test() throws IOException {
@@ -32,7 +28,7 @@ public class PathTest {
                     File destFile = new File(targetFolderName + fileName);
                     fileOutputStream = new FileOutputStream(destFile);
                     fileOutputStream.write(newContent.getBytes());
-                } catch (IOException e) {
+             } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
                     fileOutputStream.close();
@@ -44,44 +40,22 @@ public class PathTest {
     private String changeJavaFile(File file, String newPackage) throws IOException {
         BufferedReader reader = new BufferedReader( new FileReader(file));
         String         line = null;
+        StringBuilder  stringBuilder = new StringBuilder();
         String         ls = System.getProperty("line.separator");
 
         try {
-            while( ( line = reader.readLine() ) != null) {
-                if(!(line.startsWith("@") && !(line.contains(START)) || !(line.contains(END)))) {
-                    addingLineToFileContent(newPackage, line);
-                } else if (line.contains(START) || line.contains(END)) {
-                    removeGetterAndSetters(line);
+            while( ( line = reader.readLine() ) != null ) {
+                if(line.startsWith(PACKAGE)) {
+                    line = line.replace(line, PACKAGE + newPackage + ";");
+                    stringBuilder.append(line);
+                } else {
+                    stringBuilder.append(line);
+                    stringBuilder.append("\n");
                 }
             }
             return stringBuilder.toString();
         } finally {
             reader.close();
         }
-    }
-
-    private void addingLineToFileContent(String newPackage, String line) {
-        if(line.startsWith(PACKAGE) ) {
-            line = line.replace(line, PACKAGE + newPackage + ";");
-            stringBuilder.append(line);
-        } else {
-            stringBuilder.append(line);
-            stringBuilder.append("\n");
-        }
-    }
-
-    private boolean removeGetterAndSetters(String line) {
-        boolean setterGetterComplete = false;
-        if (line.contains(START)) {
-            getterOrSetterContent += 1;
-        } else if (line.contains(END)) {
-            getterOrSetterContent -= 1;
-        }
-
-        if (getterOrSetterContent == 0) {
-            setterGetterComplete = true;
-        }
-
-        return setterGetterComplete;
     }
 }
