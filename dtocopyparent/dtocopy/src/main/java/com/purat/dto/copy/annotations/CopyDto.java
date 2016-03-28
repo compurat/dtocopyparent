@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
 public @interface CopyDto {
-
+    String sourceFolder() default "";
     String copyFromPackage();
     String copyToPackage();
 }

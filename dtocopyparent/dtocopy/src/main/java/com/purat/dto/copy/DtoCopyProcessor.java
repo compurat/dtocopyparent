@@ -17,13 +17,14 @@ import java.util.Set;
 @SupportedAnnotationTypes("com.purat.dto.copy.annotations.CopyDto")
 public class DtoCopyProcessor extends AbstractProcessor {
     private static final String FOLDER_SEPERATOR = "/";
-    public static final String PACKAGE = "package ";
-    public static final String SOURCE_FOLDER = "src/main/java/";
+    private static final String PACKAGE = "package ";
+    private static final String SOURCE_FOLDER = "src/main/java/";
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         String copyFrom = null;
         String copyTo = null;
+        String sourceFolderName = null;
         for (TypeElement typeElement: annotations) {
             //Get the members that are annotated with Option
             for (Element element: roundEnv.getElementsAnnotatedWith(typeElement)) {
@@ -31,17 +32,26 @@ public class DtoCopyProcessor extends AbstractProcessor {
                 CopyDto copyDto = element.getAnnotation(CopyDto.class);
                 copyFrom = copyDto.copyFromPackage();
                 copyTo = copyDto.copyToPackage();
+                sourceFolderName = copyDto.sourceFolder();
+
             }
-            copyDto(copyFrom, copyTo);
+            copyDto(copyFrom, copyTo, sourceFolderName);
         }
         return true;
     }
 
-    private void copyDto(String copyFrom, String copyTo) {
-        String targetFolderName = SOURCE_FOLDER + copyTo.replaceAll("\\.", FOLDER_SEPERATOR) + FOLDER_SEPERATOR ;
+    private void copyDto(String copyFrom, String copyTo, String sourceFolderNaming) {
+        String sources = null;
+        if (!(sourceFolderNaming.isEmpty())) {
+            sources = sourceFolderNaming;
+        } else {
+            sources = SOURCE_FOLDER;
+        }
+
+        String targetFolderName = sources + copyTo.replaceAll("\\.", FOLDER_SEPERATOR) + FOLDER_SEPERATOR ;
         File targetFolder = new File(targetFolderName);
         targetFolder.mkdirs();
-        String sourceFolderName = SOURCE_FOLDER + copyFrom.replaceAll("\\.", FOLDER_SEPERATOR);
+        String sourceFolderName = sources + copyFrom.replaceAll("\\.", FOLDER_SEPERATOR);
         File sourceFolder = new File(sourceFolderName);
         FileOutputStream fileOutputStream = null;
         for (File toCopyFile : sourceFolder.listFiles()) {
