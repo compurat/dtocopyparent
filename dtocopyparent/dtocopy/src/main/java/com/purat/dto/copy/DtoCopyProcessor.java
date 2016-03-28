@@ -55,7 +55,12 @@ public class DtoCopyProcessor extends AbstractProcessor {
             while( ( line = reader.readLine() ) != null ) {
                 line = changePackage(newPackage, line);
                 line = removeExtends(line);
-
+                if(line.startsWith("@")) {
+                    line = "";
+                }
+                if(line.contains("class")) {
+                    line = "@Setter" + " \n " + line;
+                }
                 if  (line.endsWith("{") && !(line.contains(filename)) || (line.contains(filename) && line.contains("("))) {
                     methodComplete = false;
                 }
@@ -63,7 +68,7 @@ public class DtoCopyProcessor extends AbstractProcessor {
                     methodComplete = true;
                 }
 
-                if (methodComplete && !(line.endsWith("}")) && !(line.startsWith("@")) && !(line.equals(""))) {
+                if (methodComplete && !(line.endsWith("}")) && !(line.equals(""))) {
                     stringBuilder.append(line);
                     stringBuilder.append("\n");
                 }
