@@ -15,7 +15,6 @@ public class PathTest {
         File targetFolder = new File(targetFolderName);
         targetFolder.mkdirs();
 
-
         String sourceFolderName = "src/main/java/" + "com.purat".replaceAll("\\.", "/");
         File sourceFolder = new File(sourceFolderName);
         FileOutputStream fileOutputStream = null;
@@ -40,26 +39,21 @@ public class PathTest {
     }
     private String changeJavaFile(File file, String newPackage, String filename) throws IOException {
         BufferedReader reader = new BufferedReader( new FileReader(file));
-        String line = null;
         StringBuilder  stringBuilder = new StringBuilder();
-        String ls = System.getProperty("line.separator");
         boolean methodComplete = true;
-
         try {
+            String line = null;
             while( ( line = reader.readLine() ) != null ) {
-                if(line.startsWith(PACKAGE)) {
-                    line = line.replace(line, PACKAGE + newPackage + ";");
-                }
+                line = changePackage(newPackage, line);
+                line = removeExtends(line);
+
                 if  (line.endsWith("{") && !(line.contains(filename)) || (line.contains(filename) && line.contains("("))) {
                     methodComplete = false;
-                }
-                if( line.contains("extends")) {
-                    int endPos = line.indexOf("extends");
-                    line = line.substring(0, endPos) + "{";
                 }
                 if (line.endsWith("}")) {
                     methodComplete = true;
                 }
+
                 if (methodComplete && !(line.endsWith("}")) && !(line.startsWith("@")) && !(line.equals(""))) {
                     stringBuilder.append(line);
                     stringBuilder.append("\n");
@@ -70,5 +64,20 @@ public class PathTest {
         } finally {
             reader.close();
         }
+    }
+
+    private String removeExtends(String line) {
+        if( line.contains("extends")) {
+            int endPos = line.indexOf("extends");
+            line = line.substring(0, endPos) + "{";
+        }
+        return line;
+    }
+
+    private String changePackage(String newPackage, String line) {
+        if(line.startsWith(PACKAGE)) {
+            line = line.replace(line, PACKAGE + newPackage + ";");
+        }
+        return line;
     }
 }
