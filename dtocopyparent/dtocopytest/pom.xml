@@ -17,7 +17,6 @@
         <version>1.0-SNAPSHOT</version>
     </dependency>
 </dependencies>
-<!--
     <build>
         <plugins>
             <plugin>
@@ -32,11 +31,11 @@
                             com.purat.dto.copy.DtoCopyProcessor
                         </annotationProcessor>
                     </annotationProcessors>
+                        <compilerArgument>-proc:none</compilerArgument>
                     <debug>true</debug>
                     <optimize>true</optimize>
                 </configuration>
             </plugin>
         </plugins>
     </build>
--->
 </project>
