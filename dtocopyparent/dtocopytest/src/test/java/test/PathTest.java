@@ -1,14 +1,13 @@
 package test;
 
-import org.junit.Test;
-
-import java.io.*;
-
+import lombok.Getter;
+@Getter
 public class PathTest {
     private static final String FOLDER_SEPERATOR = "/";
     public static final String PACKAGE = "package ";
 
 
+/*
     @Test
     public void test() throws IOException {
         String targetFolderName = "src/main/java/" + "com.purat.copied".replaceAll("\\.", "/") + FOLDER_SEPERATOR ;
@@ -51,7 +50,7 @@ public class PathTest {
                 }
 
                 if(line.contains("class")) {
-                    line = "@Setter" + " \n " + line;
+                    line = "@Getter" + " \n " + line;
                 }
 
                 if  (line.endsWith("{") && !(line.contains(filename)) || (line.contains(filename) && line.contains("("))) {
@@ -87,4 +86,5 @@ public class PathTest {
         }
         return line;
     }
+*/
 }

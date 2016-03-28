@@ -1,5 +1,6 @@
 package com.purat.dto.copy;
 
+import com.purat.dto.copy.annotations.CopyDto;
 import org.apache.commons.io.IOUtils;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -7,6 +8,7 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import java.io.*;
 import java.util.Set;
@@ -16,14 +18,30 @@ import java.util.Set;
 public class DtoCopyProcessor extends AbstractProcessor {
     private static final String FOLDER_SEPERATOR = "/";
     public static final String PACKAGE = "package ";
+    public static final String SOURCE_FOLDER = "src/main/java/";
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        String targetFolderName = "src/main/java/" + "com.purat.copied".replaceAll("\\.", "/") + FOLDER_SEPERATOR ;
+        String copyFrom = null;
+        String copyTo = null;
+        for (TypeElement typeElement: annotations) {
+            //Get the members that are annotated with Option
+            for (Element element: roundEnv.getElementsAnnotatedWith(typeElement)) {
+                //Process the members. processAnnotation is our own method
+                CopyDto copyDto = element.getAnnotation(CopyDto.class);
+                copyFrom = copyDto.copyFromPackage();
+                copyTo = copyDto.copyToPackage();
+            }
+            copyDto(copyFrom, copyTo);
+        }
+        return true;
+    }
+
+    private void copyDto(String copyFrom, String copyTo) {
+        String targetFolderName = SOURCE_FOLDER + copyTo.replaceAll("\\.", "/") + FOLDER_SEPERATOR ;
         File targetFolder = new File(targetFolderName);
         targetFolder.mkdirs();
-
-        String sourceFolderName = "src/main/java/" + "com.purat".replaceAll("\\.", "/");
+        String sourceFolderName = SOURCE_FOLDER + copyFrom.replaceAll("\\.", "/");
         File sourceFolder = new File(sourceFolderName);
         FileOutputStream fileOutputStream = null;
         for (File toCopyFile : sourceFolder.listFiles()) {
@@ -32,7 +50,7 @@ public class DtoCopyProcessor extends AbstractProcessor {
                     String[] splittedTargetName = toCopyFile.getCanonicalPath().split(FOLDER_SEPERATOR);
                     String fileName = splittedTargetName[splittedTargetName.length - 1];
                     String[] shortName = fileName.split("\\.");
-                    String newContent = changeJavaFile(toCopyFile,"com.purat.copied", shortName[0]);
+                    String newContent = changeJavaFile(toCopyFile,copyTo, shortName[0]);
                     File destFile = new File(targetFolderName + fileName);
                     fileOutputStream = new FileOutputStream(destFile);
                     fileOutputStream.write(newContent.getBytes());
@@ -43,7 +61,6 @@ public class DtoCopyProcessor extends AbstractProcessor {
                 }
             }
         }
-        return true;
     }
 
     private String changeJavaFile(File file, String newPackage, String filename) throws IOException {
@@ -55,12 +72,8 @@ public class DtoCopyProcessor extends AbstractProcessor {
             while( ( line = reader.readLine() ) != null ) {
                 line = changePackage(newPackage, line);
                 line = removeExtends(line);
-                if(line.startsWith("@")) {
-                    line = "";
-                }
-                if(line.contains("class")) {
-                    line = "@Setter" + " \n " + line;
-                }
+                line = removeAnnotations(line);
+                line = addGetters(line);
                 if  (line.endsWith("{") && !(line.contains(filename)) || (line.contains(filename) && line.contains("("))) {
                     methodComplete = false;
                 }
@@ -80,6 +93,20 @@ public class DtoCopyProcessor extends AbstractProcessor {
         }
     }
 
+    private String addGetters(String line) {
+        if(line.contains("class")) {
+            line = "@Getter" + " \n " + line;
+        }
+        return line;
+    }
+
+    private String removeAnnotations(String line) {
+        if(line.startsWith("@")) {
+            line = "";
+        }
+        return line;
+    }
+
     private String removeExtends(String line) {
         if( line.contains("extends")) {
             int endPos = line.indexOf("extends");
@@ -91,6 +118,7 @@ public class DtoCopyProcessor extends AbstractProcessor {
     private String changePackage(String newPackage, String line) {
         if(line.startsWith(PACKAGE)) {
             line = line.replace(line, PACKAGE + newPackage + ";");
+            line = line + "\n\nimport lombok.Getter;";
         }
         return line;
     }
