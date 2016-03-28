@@ -50,13 +50,17 @@ public class PathTest {
                 if(line.startsWith(PACKAGE)) {
                     line = line.replace(line, PACKAGE + newPackage + ";");
                 }
-                if  (line.endsWith("{") && !(line.contains(filename))) {
+                if  (line.endsWith("{") && !(line.contains(filename)) || (line.contains(filename) && line.contains("("))) {
                     methodComplete = false;
+                }
+                if( line.contains("extends")) {
+                    int endPos = line.indexOf("extends");
+                    line = line.substring(0, endPos) + "{";
                 }
                 if (line.endsWith("}")) {
                     methodComplete = true;
                 }
-                if (methodComplete && !(line.endsWith("}")) && !(line.startsWith("@"))) {
+                if (methodComplete && !(line.endsWith("}")) && !(line.startsWith("@")) && !(line.equals(""))) {
                     stringBuilder.append(line);
                     stringBuilder.append("\n");
                 }
