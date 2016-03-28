@@ -52,8 +52,10 @@ public class DtoCopyProcessor extends AbstractProcessor {
                     String[] shortName = fileName.split("\\.");
                     String newContent = changeJavaFile(toCopyFile,copyTo, shortName[0]);
                     File destFile = new File(targetFolderName + fileName);
-                    fileOutputStream = new FileOutputStream(destFile);
-                    fileOutputStream.write(newContent.getBytes());
+                    if(!(destFile.exists())) {
+                        fileOutputStream = new FileOutputStream(destFile);
+                        fileOutputStream.write(newContent.getBytes());
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
